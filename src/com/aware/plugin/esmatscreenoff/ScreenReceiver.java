@@ -34,7 +34,5 @@ public class ScreenReceiver extends BroadcastReceiver {
         } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
             Log.d("EsmAtScreenOff", "turning screen on");
         }
-        
-
     }
 }

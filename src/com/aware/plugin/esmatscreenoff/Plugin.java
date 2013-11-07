@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 
+import com.aware.Aware;
+import com.aware.Aware_Preferences;
 import com.aware.utils.Aware_Sensor;
 
 public class Plugin extends Aware_Sensor {
@@ -14,13 +16,19 @@ public class Plugin extends Aware_Sensor {
     
     @Override
     public void onCreate() {
+        super.onCreate();
+
         Log.d("EsmAtScreenOff", "starting up!");
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(mReceiver, filter);
 
-        super.onCreate();
+        //Activate sensors
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_ESM, true);
+        //Apply settings
+        Intent applySettings = new Intent(Aware.ACTION_AWARE_REFRESH);
+        sendBroadcast(applySettings);
     }
 
     @Override
@@ -28,6 +36,11 @@ public class Plugin extends Aware_Sensor {
         Log.d("EsmAtScreenOff", "destroyin'!");
         unregisterReceiver(mReceiver);
         super.onDestroy();
-        // Code here when add-on is turned off.
+        
+        //Deactivate sensors
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_ESM, false);
+        //Apply settings
+        Intent applySettings = new Intent(Aware.ACTION_AWARE_REFRESH);
+        sendBroadcast(applySettings);
     }
 }
