@@ -24,17 +24,17 @@ public class ScreenReceiver extends BroadcastReceiver {
             wl.acquire(1000);
             Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
             vibrator.vibrate(500);
-
-            wasScreenOn = false;
+            
+            Intent i = new Intent();
+            i.setAction(ESM.ACTION_AWARE_QUEUE_ESM);
+            String esmStr = "[{'esm': { 'esm_type': 1, 'esm_title': 'ESM Freetext', 'esm_instructions': 'The user can answer an open ended question.', 'esm_submit': 'Next', 'esm_expiration_threashold': 60, 'esm_trigger': 'AWARE Tester' }}]";
+            i.putExtra(ESM.EXTRA_ESM, esmStr);
+            context.sendBroadcast(i);
+            
         } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
             Log.d("EsmAtScreenOff", "turning screen on");
-            wasScreenOn = true;
         }
         
-        Intent i = new Intent();
-        i.setAction(ESM.ACTION_AWARE_QUEUE_ESM);
-        String esmStr = "[{'esm': { 'esm_type': 1, 'esm_title': 'ESM Freetext', 'esm_instructions': 'The user can answer an open ended question.', 'esm_submit': 'Next', 'esm_expiration_threashold': 60, 'esm_trigger': 'AWARE Tester' }}]";
-        i.putExtra(ESM.EXTRA_ESM, esmStr);
-        context.sendBroadcast(i);
+
     }
 }
