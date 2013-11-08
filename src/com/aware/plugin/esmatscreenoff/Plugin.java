@@ -1,9 +1,12 @@
 package com.aware.plugin.esmatscreenoff;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.util.Log;
 
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
@@ -13,34 +16,33 @@ public class Plugin extends Aware_Sensor {
     
     private BroadcastReceiver mReceiver = new ScreenReceiver();
 
+    private List<Date> esmDateTimes = new ArrayList<Date>();
     
     @Override
     public void onCreate() {
         super.onCreate();
+        
+        // listen to screen off events
+        registerReceiver(mReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
 
-        Log.d("EsmAtScreenOff", "starting up!");
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_SCREEN_ON);
-        filter.addAction(Intent.ACTION_SCREEN_OFF);
-        registerReceiver(mReceiver, filter);
-
-        //Activate sensors
+        //Activate sensors, and apply
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_ESM, true);
-        //Apply settings
         Intent applySettings = new Intent(Aware.ACTION_AWARE_REFRESH);
         sendBroadcast(applySettings);
     }
 
     @Override
     public void onDestroy() {
-        Log.d("EsmAtScreenOff", "destroyin'!");
         unregisterReceiver(mReceiver);
         super.onDestroy();
         
-        //Deactivate sensors
+        //Deactivate sensors, and apply
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_ESM, false);
-        //Apply settings
         Intent applySettings = new Intent(Aware.ACTION_AWARE_REFRESH);
         sendBroadcast(applySettings);
     }
+    
+//    boolean areEsmDateTimesOkay() {
+//        
+//    }
 }
