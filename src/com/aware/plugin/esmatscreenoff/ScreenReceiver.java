@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
 import android.os.Vibrator;
+import android.text.format.Time;
 import android.util.Log;
 
 import com.aware.ESM;
@@ -13,12 +14,28 @@ public class ScreenReceiver extends BroadcastReceiver {
     
     // see: http://thinkandroid.wordpress.com/2010/01/24/handling-screen-off-and-screen-on-intents/
 
+    private Plugin plugin;
+    public ScreenReceiver(Plugin plugin) {
+        this.plugin = plugin;
+    }
+    
     @Override
     public void onReceive(Context context, Intent intent) {
         if (!intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
             Log.d("EsmAtScreenOff", "Got an event that's not a screen off. Why?");
             return;
         }
+        if (plugin.esmTimes.isEmpty()) {
+            return; // no more ESMs left to do today
+        }
+        Time nextEsmTime = plugin.esmTimes.get(0);
+        Time now = new Time();
+        now.setToNow();
+        if (now.before(nextEsmTime)) {
+            return; // not time to do an ESM yet
+        }
+        plugin.esmTimes.remove(0); // going to do this first ESM, so remove it
+        
         // Log.d("EsmAtScreenOff", "turning screen off");
 
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
@@ -32,6 +49,5 @@ public class ScreenReceiver extends BroadcastReceiver {
         String esmStr = "[{'esm': { 'esm_type': 1, 'esm_title': 'ESM Freetext', 'esm_instructions': 'The user can answer an open ended question.', 'esm_submit': 'Next', 'esm_expiration_threashold': 60, 'esm_trigger': 'AWARE Tester' }}]";
         i.putExtra(ESM.EXTRA_ESM, esmStr);
         context.sendBroadcast(i);
-
     }
 }
