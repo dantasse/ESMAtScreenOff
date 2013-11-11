@@ -21,7 +21,8 @@ public class Plugin extends Aware_Sensor {
     private static final int NUM_ESMS = 8;
     private Random random = new Random();
     
-    private BroadcastReceiver mReceiver = new ScreenReceiver(this);
+    private BroadcastReceiver screenReceiver = new ScreenReceiver(this);
+    private BroadcastReceiver newDateReceiver = new NewDateReceiver(this);
 
     List<Time> esmTimes = new ArrayList<Time>();
 
@@ -32,7 +33,8 @@ public class Plugin extends Aware_Sensor {
         setEsmTimes();
         
         // listen to screen off events
-        registerReceiver(mReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
+        registerReceiver(screenReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
+        registerReceiver(newDateReceiver, new IntentFilter(Intent.ACTION_DATE_CHANGED));
 
         //Activate sensors, and apply
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_ESM, true);
@@ -44,26 +46,14 @@ public class Plugin extends Aware_Sensor {
     public void onDestroy() {
         super.onDestroy();
 
-        unregisterReceiver(mReceiver);
+        unregisterReceiver(screenReceiver);
+        unregisterReceiver(newDateReceiver);
         
         //Deactivate sensors, and apply
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_ESM, false);
         Intent applySettings = new Intent(Aware.ACTION_AWARE_REFRESH);
         sendBroadcast(applySettings);
     }
-    
-    // return true if all the ESMs lined up to go are today; false if they're old or
-    // there aren't any ESM times set.
-//    boolean areEsmDateTimesOkay() {
-//        Time now = new Time();
-//        now.setToNow();
-//        for (Time time : esmTimes) {
-//            if (time.monthDay == now.monthDay) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
     
     void setEsmTimes() {
         Time startTime = new Time();
@@ -88,7 +78,6 @@ public class Plugin extends Aware_Sensor {
             esmTimes.add(nextTime);
         }
         
-        String timesString = "";
         Log.d("EsmAtScreenOff", "set ESM times to:");
         for (Time time : esmTimes) {
             Log.d("EsmAtScreenOff", time.format3339(false));

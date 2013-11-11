@@ -28,16 +28,15 @@ public class ScreenReceiver extends BroadcastReceiver {
         if (plugin.esmTimes.isEmpty()) {
             return; // no more ESMs left to do today
         }
-        Time nextEsmTime = plugin.esmTimes.get(0);
         Time now = new Time();
         now.setToNow();
-        if (now.before(nextEsmTime)) {
+        if (now.before(plugin.esmTimes.get(0))) {
             return; // not time to do an ESM yet
         }
-        plugin.esmTimes.remove(0); // going to do this first ESM, so remove it
+        while(!plugin.esmTimes.isEmpty() && now.after(plugin.esmTimes.get(0))) {
+            plugin.esmTimes.remove(0); // if a few have queued, just do one
+        }
         
-        // Log.d("EsmAtScreenOff", "turning screen off");
-
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "EsmAtScreenOff");
         wl.acquire(1000);
