@@ -15,10 +15,12 @@ public class NewDateReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d("EsmAtScreenOff", "got a new date event");
-        if (!intent.getAction().equals(Intent.ACTION_DATE_CHANGED)) {
-            Log.d("EsmAtScreenOff", "NewDateReceiver got an event that's not a new date. Why?");
+        if (!intent.getAction().equals(Plugin.ACTION_RESET_ESM_TIMES)) {
+            Log.d("EsmAtScreenOff",
+                    "NewDateReceiver got an event that's not about resetting ESM times. Why?");
             return;
         }
+        
         plugin.setEsmTimes();
     }
 }

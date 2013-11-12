@@ -1,9 +1,13 @@
 package com.aware.plugin.esmatscreenoff;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Random;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -23,19 +27,37 @@ public class Plugin extends Aware_Sensor {
     
     private BroadcastReceiver screenReceiver = new ScreenReceiver(this);
     private BroadcastReceiver newDateReceiver = new NewDateReceiver(this);
-
+    private AlarmManager alarmManager;
+    private PendingIntent setTimesPendingIntent;
+    
     List<Time> esmTimes = new ArrayList<Time>();
+    
+    static final String ACTION_RESET_ESM_TIMES = "DANTASSE_RESET_ESM_TIMES";
 
-    // TODO somehow run a cron job to reset the times every day!
     @Override
     public void onCreate() {
         super.onCreate();
-        setEsmTimes();
         
         // listen to screen off events
         registerReceiver(screenReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
-        registerReceiver(newDateReceiver, new IntentFilter(Intent.ACTION_DATE_CHANGED));
+        registerReceiver(newDateReceiver, new IntentFilter(ACTION_RESET_ESM_TIMES));
 
+        // set the alarm to schedule future ESM date resets
+        // (could I have just used an alarm manager to schedule everything? hmm.)
+        Calendar tomorrowMidnightish = new GregorianCalendar();
+        tomorrowMidnightish.add(Calendar.DATE, 1); // will roll over at the end of month, I think
+        tomorrowMidnightish.set(Calendar.HOUR, 0); // so it's between 12-1AM
+        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        setTimesPendingIntent = PendingIntent.getBroadcast(getBaseContext(),
+                0, /* ??? */
+                new Intent(ACTION_RESET_ESM_TIMES),
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.setInexactRepeating(AlarmManager.RTC,
+                tomorrowMidnightish.getTimeInMillis(),
+                1000 * 60 * 60 * 24 /* 1 day, ignore DST, being 1hr off is fine */,
+                setTimesPendingIntent);
+        setEsmTimes(); // do it once now to set the times for the rest of the day
+        
         //Activate sensors, and apply
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_ESM, true);
         Intent applySettings = new Intent(Aware.ACTION_AWARE_REFRESH);
@@ -48,6 +70,7 @@ public class Plugin extends Aware_Sensor {
 
         unregisterReceiver(screenReceiver);
         unregisterReceiver(newDateReceiver);
+        alarmManager.cancel(setTimesPendingIntent);
         
         //Deactivate sensors, and apply
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_ESM, false);
