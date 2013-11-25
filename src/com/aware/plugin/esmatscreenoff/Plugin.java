@@ -32,7 +32,7 @@ public class Plugin extends Aware_Sensor {
     
     List<Time> esmTimes = new ArrayList<Time>();
     
-    static final String ACTION_RESET_ESM_TIMES = "DANTASSE_RESET_ESM_TIMES";
+    static final String ACTION_RESET_ESM_TIMES = "com.aware.plugin.esmatscreenoff.NewDateReceiver";
 
     @Override
     public void onCreate() {
