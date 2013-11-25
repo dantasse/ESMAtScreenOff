@@ -45,7 +45,12 @@ public class ScreenReceiver extends BroadcastReceiver {
 
         Intent i = new Intent();
         i.setAction(ESM.ACTION_AWARE_QUEUE_ESM);
-        String esmStr = "[{'esm': { 'esm_type': 1, 'esm_title': 'ESM Freetext', 'esm_instructions': 'The user can answer an open ended question.', 'esm_submit': 'Next', 'esm_expiration_threashold': 60, 'esm_trigger': 'AWARE Tester' }}]";
+        String esmStr = "[{'esm': { 'esm_type': 1, " +
+        		"'esm_title': 'ESM Freetext', " +
+        		"'esm_instructions': 'What were you doing just now?', " +
+        		"'esm_submit': 'Done', " +
+        		"'esm_expiration_threashold': 60, " +
+        		"'esm_trigger': 'EsmAtScreenOff' }}]";
         i.putExtra(ESM.EXTRA_ESM, esmStr);
         context.sendBroadcast(i);
     }
