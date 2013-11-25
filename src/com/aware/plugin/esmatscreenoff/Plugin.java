@@ -20,9 +20,9 @@ import com.aware.utils.Aware_Sensor;
 
 public class Plugin extends Aware_Sensor {
     
-    private static final int START_HOUR = 10;
-    private static final int END_HOUR = 21; // 9pm
-    private static final int NUM_ESMS = 8;
+    private static final int START_HOUR = 10; // nothing earlier than 10am
+    private static final int END_HOUR = 21; // nothing later than 9pm
+    private static final int NUM_ESMS = 8; // this many ESMs per day
     private Random random = new Random();
     
     private BroadcastReceiver screenReceiver = new ScreenReceiver(this);
@@ -48,14 +48,16 @@ public class Plugin extends Aware_Sensor {
         tomorrowMidnightish.add(Calendar.DATE, 1); // will roll over at the end of month, I think
         tomorrowMidnightish.set(Calendar.HOUR, 0); // so it's between 12-1AM
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        
         setTimesPendingIntent = PendingIntent.getBroadcast(getBaseContext(),
                 0, /* ??? */
                 new Intent(ACTION_RESET_ESM_TIMES),
                 PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.setInexactRepeating(AlarmManager.RTC,
                 tomorrowMidnightish.getTimeInMillis(),
-                1000 * 60 * 60 * 24 /* 1 day, ignore DST, being 1hr off is fine */,
+                AlarmManager.INTERVAL_DAY /* 1 day, ignore DST, being 1hr off is fine */,
                 setTimesPendingIntent);
+
         setEsmTimes(); // do it once now to set the times for the rest of the day
         
         //Activate sensors, and apply
