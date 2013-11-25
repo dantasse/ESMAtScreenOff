@@ -91,6 +91,7 @@ public class Plugin extends Aware_Sensor {
         int intervalLength = timeBetween / NUM_ESMS;
         
         esmTimes.clear();
+
         Time todayStart = new Time();
         todayStart.setToNow();
         todayStart.hour = START_HOUR;
@@ -103,6 +104,30 @@ public class Plugin extends Aware_Sensor {
             esmTimes.add(nextTime);
         }
         
+        // also set times for tomorrow. this is for a few reasons:
+        // 1. the setInexactRepeating might not occur until a full interval after the first time.
+        // so if you set it for 12:01am tomorrow morning, it might not happen until 11:59pm
+        // tomorrow night, missing all of study day 2.
+        // 2. setInexactRepeating is, well, inexact. So if it's supposed to go off on 12:01am
+        // on Tuesday, it might instead go off on 11:59pm Monday instead, so it'll set a bunch of
+        // dates on Monday, which is not correct.
+        // 3. it doesn't hurt to have some times set for tomorrow. if we get to tomorrow morning
+        // and we already have some dates set, they'll be cleared and we'll reset a new bunch.
+
+        Calendar tomorrowCal = new GregorianCalendar(); // java dates are terrible.
+        tomorrowCal.add(Calendar.DATE, 1); // doing this b/c Calendar.add handles end of month well.
+        Time tomorrowTime = new Time();
+        tomorrowTime.set(0 /*sec*/, 0 /*min*/, START_HOUR,
+                tomorrowCal.get(Calendar.DAY_OF_MONTH), tomorrowCal.get(Calendar.MONTH),
+                tomorrowCal.get(Calendar.YEAR));
+        for (int i = 0; i < NUM_ESMS; i++) {
+            long nextTimeMillis = tomorrowTime.toMillis(true);
+            nextTimeMillis += i * intervalLength + random.nextInt(intervalLength);
+            Time nextTime = new Time();
+            nextTime.set(nextTimeMillis);
+            esmTimes.add(nextTime);
+        }
+
         Log.d("EsmAtScreenOff", "set ESM times to:");
         for (Time time : esmTimes) {
             Log.d("EsmAtScreenOff", time.format3339(false));
