@@ -34,11 +34,11 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        
-        <activity 
+        <!-- removed Settings for now; turns out there's nothing to set -->
+<!--         <activity 
             android:name="Settings"
             android:exported="true"
             android:theme="@android:style/Theme.Dialog">
-        </activity>
+        </activity> -->
     </application>
 </manifest>
