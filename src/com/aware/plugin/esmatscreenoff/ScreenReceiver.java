@@ -8,6 +8,7 @@ import android.os.Vibrator;
 import android.text.format.Time;
 import android.util.Log;
 
+import com.aware.Aware;
 import com.aware.ESM;
 
 public class ScreenReceiver extends BroadcastReceiver {
@@ -45,9 +46,11 @@ public class ScreenReceiver extends BroadcastReceiver {
 
         Intent i = new Intent();
         i.setAction(ESM.ACTION_AWARE_QUEUE_ESM);
+        String esmTitle = Aware.getSetting(plugin.getContentResolver(), Plugin.ESM_TITLE_KEY);
+        String esmInstructions = Aware.getSetting(plugin.getContentResolver(), Plugin.ESM_INSTRUCTIONS_KEY);
         String esmStr = "[{'esm': { 'esm_type': 1, " +
-        		"'esm_title': 'ESM Freetext', " +
-        		"'esm_instructions': 'What were you doing just now?', " +
+        		"'esm_title': '" + esmTitle + "', " +
+        		"'esm_instructions': '" + esmInstructions + "', " +
         		"'esm_submit': 'Done', " +
         		"'esm_expiration_threashold': 60, " +
         		"'esm_trigger': 'EsmAtScreenOff' }}]";

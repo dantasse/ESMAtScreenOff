@@ -20,9 +20,11 @@ import com.aware.utils.Aware_Sensor;
 
 public class Plugin extends Aware_Sensor {
     
-    private static final int START_HOUR = 10; // nothing earlier than 10am
-    private static final int END_HOUR = 21; // nothing later than 9pm
-    private static final int NUM_ESMS = 8; // this many ESMs per day
+    private static final int FALLBACK_START_HOUR = 9; // nothing earlier than 9am
+    private static final int FALLBACK_END_HOUR = 21; // nothing later than 9pm
+    private static final int FALLBACK_NUM_ESMS = 8; // this many ESMs per day (if not set otherwise)
+    private static final String FALLBACK_ESM_TITLE = "What were you doing just now?";
+    private static final String FALLBACK_ESM_INSTRUCTIONS = "What did you mean to accomplish when you took out your phone just now?";
     private Random random = new Random();
     
     private BroadcastReceiver screenReceiver = new ScreenReceiver(this);
@@ -34,6 +36,18 @@ public class Plugin extends Aware_Sensor {
     
     static final String ACTION_RESET_ESM_TIMES = "com.aware.plugin.esmatscreenoff.NewDateReceiver";
 
+    // these are the keys you can use to set preferences via the Aware dashboard. Go to
+    // http://(servername)/aware/index.php/aware_ws/dashboard (as of 12/2013; will probably change)
+    // and select the right client, enter the Topic="configuration", and Message=
+    // "com.aware.plugin.esmatscreenoff.NUM_ESMS=8" (or whatever. omit quotes.)
+    static final String NUM_ESMS_KEY = "com.aware.plugin.esmatscreenoff.NUM_ESMS";
+    static final String START_HOUR_KEY = "com.aware.plugin.esmatscreenoff.START_HOUR";
+    static final String END_HOUR_KEY = "com.aware.plugin.esmatscreenoff.END_HOUR";
+    static final String ESM_TITLE_KEY = "com.aware.plugin.esmatscreenoff.ESM_TITLE";
+    static final String ESM_INSTRUCTIONS_KEY = "com.aware.plugin.esmatscreenoff.ESM_INSTRUCTIONS";
+    
+    static final String LOG_TAG = "EsmAtScreenOff";
+    
     @Override
     public void onCreate() {
         super.onCreate();
@@ -59,6 +73,13 @@ public class Plugin extends Aware_Sensor {
                 setTimesPendingIntent);
 
         setEsmTimes(); // do it once now to set the times for the rest of the day
+
+        // Set all the EsmAtScreenOff-specific settings
+        Aware.setSetting(getContentResolver(), NUM_ESMS_KEY, FALLBACK_NUM_ESMS);
+        Aware.setSetting(getContentResolver(), START_HOUR_KEY, FALLBACK_START_HOUR);
+        Aware.setSetting(getContentResolver(), END_HOUR_KEY, FALLBACK_END_HOUR);
+        Aware.setSetting(getContentResolver(), ESM_TITLE_KEY, FALLBACK_ESM_TITLE);
+        Aware.setSetting(getContentResolver(), ESM_INSTRUCTIONS_KEY, FALLBACK_ESM_INSTRUCTIONS);
         
         //Activate sensors, and apply
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_ESM, true);
@@ -82,21 +103,44 @@ public class Plugin extends Aware_Sensor {
     
     void setEsmTimes() {
         Time startTime = new Time();
-        startTime.hour = START_HOUR;        
+        try {
+            startTime.hour = Integer.parseInt(Aware.getSetting(getContentResolver(), START_HOUR_KEY));
+        } catch (NumberFormatException nfe) {
+            Log.d(LOG_TAG, "Illegal setting for start hour: " +
+                    Aware.getSetting(getContentResolver(), START_HOUR_KEY) +
+                    ", using fallback: " + FALLBACK_START_HOUR);
+            startTime.hour = FALLBACK_START_HOUR;
+        }
         Time endTime = new Time();
-        endTime.hour = END_HOUR;
+        try {
+            endTime.hour = Integer.parseInt(Aware.getSetting(getContentResolver(), END_HOUR_KEY));
+        } catch (NumberFormatException nfe) {
+            Log.d(LOG_TAG, "Illegal setting for end hour: " +
+                    Aware.getSetting(getContentResolver(), END_HOUR_KEY) +
+                    ", using fallback: " + FALLBACK_END_HOUR);
+            endTime.hour = FALLBACK_END_HOUR;
+        }
+        int numEsms;
+        try {
+            numEsms = Integer.parseInt(Aware.getSetting(getContentResolver(), NUM_ESMS_KEY));
+        } catch (NumberFormatException nfe) {
+            Log.d(LOG_TAG, "Illegal setting for number of ESMs: " +
+                    Aware.getSetting(getContentResolver(), NUM_ESMS_KEY) +
+                    ", using fallback: " + FALLBACK_NUM_ESMS);
+            numEsms = FALLBACK_NUM_ESMS;
+        }
         
         // divide into N intervals, pick a random time in each
         int timeBetween = (int) (endTime.toMillis(true) - startTime.toMillis(true));
-        int intervalLength = timeBetween / NUM_ESMS;
+        int intervalLength = timeBetween / numEsms;
         
         esmTimes.clear();
 
         Time todayStart = new Time();
         todayStart.setToNow();
-        todayStart.hour = START_HOUR;
+        todayStart.hour = startTime.hour;
         todayStart.minute = todayStart.second = 0;
-        for (int i = 0; i < NUM_ESMS; i++) {
+        for (int i = 0; i < numEsms; i++) {
             long nextTimeMillis = todayStart.toMillis(true);
             nextTimeMillis += i * intervalLength + random.nextInt(intervalLength);
             Time nextTime = new Time();
@@ -117,10 +161,10 @@ public class Plugin extends Aware_Sensor {
         Calendar tomorrowCal = new GregorianCalendar(); // java dates are terrible.
         tomorrowCal.add(Calendar.DATE, 1); // doing this b/c Calendar.add handles end of month well.
         Time tomorrowTime = new Time();
-        tomorrowTime.set(0 /*sec*/, 0 /*min*/, START_HOUR,
+        tomorrowTime.set(0 /*sec*/, 0 /*min*/, startTime.hour,
                 tomorrowCal.get(Calendar.DAY_OF_MONTH), tomorrowCal.get(Calendar.MONTH),
                 tomorrowCal.get(Calendar.YEAR));
-        for (int i = 0; i < NUM_ESMS; i++) {
+        for (int i = 0; i < numEsms; i++) {
             long nextTimeMillis = tomorrowTime.toMillis(true);
             nextTimeMillis += i * intervalLength + random.nextInt(intervalLength);
             Time nextTime = new Time();
