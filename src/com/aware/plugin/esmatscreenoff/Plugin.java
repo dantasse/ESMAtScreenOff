@@ -81,10 +81,49 @@ public class Plugin extends Aware_Sensor {
         Aware.setSetting(getContentResolver(), ESM_TITLE_KEY, FALLBACK_ESM_TITLE);
         Aware.setSetting(getContentResolver(), ESM_INSTRUCTIONS_KEY, FALLBACK_ESM_INSTRUCTIONS);
         
-        //Activate sensors, and apply
+        // Activate sensors
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_APPLICATIONS, true);
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_INSTALLATIONS, true);
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_NOTIFICATIONS, true);
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_CRASHES, true);
+
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_BATTERY, true);
+        
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_BLUETOOTH, true);
+        
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_COMMUNICATION, true);
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_CALLS, true);
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_MESSAGES, true);
+        
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_ESM, true);
+        
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_NETWORK, true);
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_NETWORK_TRAFFIC, true);
+
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_SCREEN, true);
+        
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_TELEPHONY, true);
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_WIFI, true);
+        // TODO add Google fused location
+
+        // Set up web service and MQTT settings
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_WEBSERVICE, true);
+        Aware.setSetting(getContentResolver(), Aware_Preferences.WEBSERVICE_SERVER,
+                "http://epiwork.hcii.cs.cmu.edu/aware/index.php/aware_ws/index");
+        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_MQTT, true);
+        Aware.setSetting(getContentResolver(), Aware_Preferences.MQTT_SERVER, "epiwork.hcii.cs.cmu.edu");
+        Aware.setSetting(getContentResolver(), Aware_Preferences.MQTT_PORT, 1883);
+        Aware.setSetting(getContentResolver(), Aware_Preferences.MQTT_USERNAME, "aware");
+        // don't check in the password
+        Aware.setSetting(getContentResolver(), Aware_Preferences.MQTT_PASSWORD, "");
+
+        // Well, apply the settings
         Intent applySettings = new Intent(Aware.ACTION_AWARE_REFRESH);
         sendBroadcast(applySettings);
+
+        // Send the settings to the web server
+        Intent setUpWebservice = new Intent(Aware.ACTION_AWARE_WEBSERVICE);
+        sendBroadcast(setUpWebservice);
     }
 
     @Override
