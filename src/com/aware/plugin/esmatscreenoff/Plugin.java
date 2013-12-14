@@ -16,6 +16,7 @@ import android.util.Log;
 
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
+import com.aware.ui.Plugins_Manager;
 import com.aware.utils.Aware_Sensor;
 
 public class Plugin extends Aware_Sensor {
@@ -117,6 +118,10 @@ public class Plugin extends Aware_Sensor {
         // don't check in the password
         Aware.setSetting(getContentResolver(), Aware_Preferences.MQTT_PASSWORD, "");
 
+        Intent installGFL = new Intent(Plugins_Manager.ACTION_AWARE_ACTIVATE_PLUGIN);
+        installGFL.putExtra("package_name", "com.aware.plugin.google.fused_location");
+        sendBroadcast(installGFL);
+        
         // Well, apply the settings
         Intent applySettings = new Intent(Aware.ACTION_AWARE_REFRESH);
         sendBroadcast(applySettings);
