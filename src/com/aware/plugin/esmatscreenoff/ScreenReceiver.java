@@ -49,13 +49,13 @@ public class ScreenReceiver extends BroadcastReceiver {
         String esmTitle = Aware.getSetting(plugin.getContentResolver(), Plugin.ESM_TITLE_KEY);
         String esmInstructions = Aware.getSetting(plugin.getContentResolver(), Plugin.ESM_INSTRUCTIONS_KEY);
         String esmStr = "[" +
-        		"{'esm': {" +
-        		"'esm_type': 1, " +
-        		"'esm_title': '" + esmTitle + "', " +
-        		"'esm_instructions': '" + esmInstructions + "', " +
-        		"'esm_submit': 'Done', " +
-        		"'esm_expiration_threashold': 60, " +
-        		"'esm_trigger': 'EsmAtScreenOff_Main' }}," +
+                "{'esm': {" +
+                "'esm_type': 1, " +
+                "'esm_title': '" + esmTitle + "', " +
+                "'esm_instructions': '" + esmInstructions + "', " +
+                "'esm_submit': 'Done', " +
+                "'esm_expiration_threashold': 60, " +
+                "'esm_trigger': 'EsmAtScreenOff_Main' }}," +
                 "{'esm': {" +
                 "'esm_type': 5, " +
                 "'esm_title': 'How is your mood right now?', " +
