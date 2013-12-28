@@ -90,7 +90,8 @@ public class Plugin extends Aware_Sensor {
 
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_BATTERY, true);
         
-        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_BLUETOOTH, true);
+        // I think this is causing issues with bluetooth turning off on its own.
+//        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_BLUETOOTH, true);
         
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_COMMUNICATION, true);
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_CALLS, true);
@@ -98,12 +99,14 @@ public class Plugin extends Aware_Sensor {
         
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_ESM, true);
         
-        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_NETWORK, true);
-        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_NETWORK_TRAFFIC, true);
+        // I think this uses a lot of battery
+//        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_NETWORK, true);
+//        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_NETWORK_TRAFFIC, true);
 
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_SCREEN, true);
         
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_TELEPHONY, true);
+        
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_WIFI, true);
         // TODO add Google fused location
 
