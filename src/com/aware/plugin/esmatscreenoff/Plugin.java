@@ -90,7 +90,7 @@ public class Plugin extends Aware_Sensor {
 
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_BATTERY, true);
         
-        // I think this is causing issues with bluetooth turning off on its own.
+        // I think this uses a lot of battery.
 //        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_BLUETOOTH, true);
         
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_COMMUNICATION, true);
@@ -105,9 +105,11 @@ public class Plugin extends Aware_Sensor {
 
         Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_SCREEN, true);
         
-        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_TELEPHONY, true);
-        
-        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_WIFI, true);
+        // I think this uses a lot of battery.
+//        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_TELEPHONY, true);
+
+        // I think this uses a lot of battery too.
+//        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_WIFI, true);
         // TODO add Google fused location
 
         // Set up web service and MQTT settings
